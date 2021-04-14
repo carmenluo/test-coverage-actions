@@ -20,8 +20,8 @@ jobs:
 
       - name: Test
         run: npm test
-      - name: Lint
-        run: npm run lint
+      # - name: Lint
+      #   run: npm run lint
       - name: Monitor coverage
         id: coverage-monitor
         uses: ./
