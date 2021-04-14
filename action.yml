@@ -1,0 +1,42 @@
+name: "Test coverage actions"
+branding:
+  icon: "check"
+  color: "green"
+inputs:
+  github_token:
+    description: "The GITHUB_TOKEN secret."
+    required: true
+  clover_file:
+    description: "Path to Clover XML file."
+    required: true
+  check:
+    description: "Whether check the coverage thresholds."
+    required: false
+    default: "true"
+  comment:
+    description: "Whether comment the coverage report."
+    required: false
+    default: "true"
+  threshold_alert:
+    description: "Mark the build as unstable when coverage is less than this threshold."
+    required: false
+    default: "50"
+  threshold_warning:
+    description: "Warning when coverage is less than this threshold."
+    required: false
+    default: "90"
+  status_context:
+    description: "A string label to differentiate this status from the status of other systems."
+    required: false
+    default: "Coverage Report"
+  comment_context:
+    description: "A string label to differentiate the comment posted by this action."
+    required: false
+    default: "Coverage Report"
+  comment_mode:
+    description: "A mode for comments, supported: `replace`, `update` or `insert`."
+    required: false
+    default: "replace"
+runs:
+  using: "node12"
+  main: "dist/index.js"
