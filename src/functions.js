@@ -110,21 +110,25 @@ async function readMetric(
   { thresholdAlert = 50, thresholdWarning = 90 } = {}
 ) {
   const data = coverage.coverage.project[0].metrics[0].$;
-  const detailsData = coverage.coverage.project[0].package;
-  const detailMetric = detailsData.map((detailData) => {
-    const metric = detailData.metrics[0].$;
-    return {
-      name: detailData.$.name ?? "",
-      metrics: {
-        statements: metric.statements * 1,
-        coveredstatements: metric.coveredstatements * 1,
-        conditionals: metric.conditionals * 1,
-        coveredconditionals: metric.coveredconditionals * 1,
-        methods: metric.methods * 1,
-        coveredmethods: metric.coveredmethods * 1,
-      },
-    };
-  });
+  let detailMetric;
+  if (coverage.coverage.project[0].package) {
+    const detailsData = coverage.coverage.project[0].package;
+    detailMetric = detailsData.map((detailData) => {
+      const metric = detailData.metrics[0].$;
+      return {
+        name: detailData.$.name ?? "",
+        metrics: {
+          statements: metric.statements * 1,
+          coveredstatements: metric.coveredstatements * 1,
+          conditionals: metric.conditionals * 1,
+          coveredconditionals: metric.coveredconditionals * 1,
+          methods: metric.methods * 1,
+          coveredmethods: metric.coveredmethods * 1,
+        },
+      };
+    });
+  }
+
   const metric = {
     statements: {
       total: data.elements * 1,
