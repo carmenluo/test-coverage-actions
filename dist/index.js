@@ -14461,6 +14461,7 @@ module.exports = /******/ (function (modules, runtime) {
               html_url: prUrl,
               head: { sha } = {},
             } = {},
+            repository: { name: branchName } = {},
           } = {},
         } = request || {};
 
@@ -14472,6 +14473,7 @@ module.exports = /******/ (function (modules, runtime) {
           prNumber,
           prUrl,
           sha,
+          branchName,
         };
       }
 
