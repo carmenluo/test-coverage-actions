@@ -279,7 +279,6 @@ function parseWebhook(request) {
       } = {},
     } = {},
   } = request || {};
-  console.log(JSON.stringify(request));
   if (!prNumber || !prUrl || !sha) {
     throw new Error("Action supports only pull_request event");
   }
