@@ -107,6 +107,8 @@ function calculateLevel(
 
 async function readMetric(
   coverage,
+  prUrl,
+  prName,
   { thresholdAlert = 50, thresholdWarning = 90 } = {}
 ) {
   const data = coverage.coverage.project[0].metrics[0].$;
@@ -158,6 +160,8 @@ async function readMetric(
     report: "Test",
     title: "report",
     message: JSON.stringify({ metric, detailMetric }),
+    prUrl,
+    branchName,
   };
   try {
     const res = await axios.post(
@@ -277,9 +281,9 @@ function parseWebhook(request) {
         html_url: prUrl,
         head: { sha } = {},
       } = {},
+      repository: { name: branchName } = {},
     } = {},
   } = request || {};
-  console.log(JSON.stringify(request));
   if (!prNumber || !prUrl || !sha) {
     throw new Error("Action supports only pull_request event");
   }
@@ -288,6 +292,7 @@ function parseWebhook(request) {
     prNumber,
     prUrl,
     sha,
+    branchName,
   };
 }
 
