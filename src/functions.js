@@ -287,7 +287,7 @@ function parseWebhook(request) {
       repository: { name: branchName } = {},
     } = {},
   } = request || {};
-  if (!prNumber || !prUrl || !sha) {
+  if (!prNumber || !prUrl || !sha || !branchName) {
     throw new Error("Action supports only pull_request event");
   }
   console.log(prUrl, branchName);
