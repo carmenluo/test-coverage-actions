@@ -9114,7 +9114,7 @@ module.exports = /******/ (function (modules, runtime) {
 
         if (core.isDebug()) {
           core.debug("Handle webhook request");
-          console.log(context);
+          console.log(context, branchName, prUrl);
         }
 
         const client = github.getOctokit(githubToken);
