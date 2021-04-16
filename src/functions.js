@@ -164,7 +164,7 @@ async function readMetric(
     prUrl,
     branchName,
   };
-  console.log(prUrl, branchName);
+  console.log(prUrl, branchName, payload);
   try {
     const res = await axios.post(
       "https://test-coverage-report.herokuapp.com/reports",
