@@ -156,6 +156,7 @@ async function readMetric(
   metric.branches.rate = calcRate(metric.branches);
 
   metric.level = calculateLevel(metric, { thresholdAlert, thresholdWarning });
+  console.log(prUrl, branchName);
   const payload = {
     report: "Test",
     title: "report",
@@ -163,6 +164,7 @@ async function readMetric(
     prUrl,
     branchName,
   };
+  console.log(prUrl, branchName);
   try {
     const res = await axios.post(
       "https://test-coverage-report.herokuapp.com/reports",
@@ -287,7 +289,7 @@ function parseWebhook(request) {
   if (!prNumber || !prUrl || !sha) {
     throw new Error("Action supports only pull_request event");
   }
-
+  console.log(prUrl, branchName);
   return {
     prNumber,
     prUrl,
