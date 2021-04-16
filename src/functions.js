@@ -108,7 +108,7 @@ function calculateLevel(
 async function readMetric(
   coverage,
   prUrl,
-  prName,
+  branchName,
   { thresholdAlert = 50, thresholdWarning = 90 } = {}
 ) {
   const data = coverage.coverage.project[0].metrics[0].$;

@@ -24,7 +24,6 @@ describe("functions", () => {
     expect(coverage.coverage.project[0]).toHaveProperty("metrics");
     expect(coverage.coverage.project[0].metrics).toHaveProperty("0");
     const metric = await parser.readMetric(coverage);
-    console.log(metric);
 
     ["statements", "lines", "methods", "branches"].forEach((type) => {
       expect(metric).toHaveProperty(type);
