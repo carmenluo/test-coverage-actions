@@ -170,6 +170,7 @@ async function readMetric(
       "https://test-coverage-report.herokuapp.com/reports",
       payload
     );
+    console.log(res);
   } catch (error) {
     console.log(error);
   }
