@@ -1,5 +1,5 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+const core = require("@actions/core");
+const github = require("@actions/github");
 const {
   readFile,
   readMetric,
@@ -8,14 +8,14 @@ const {
   loadConfig,
   generateCommentHeader,
   parseWebhook,
-} = require('./functions');
+} = require("./functions");
 const {
   createStatus,
   listComments,
   insertComment,
   upsertComment,
   replaceComment,
-} = require('./github');
+} = require("./github");
 
 async function run() {
   const {
@@ -35,9 +35,9 @@ async function run() {
   }
   const { context = {} } = github || {};
   const { prNumber, prUrl, sha } = parseWebhook(context);
-
+  console.log(context);
   if (core.isDebug()) {
-    core.debug('Handle webhook request');
+    core.debug("Handle webhook request");
     console.log(context);
   }
 
@@ -59,7 +59,7 @@ async function run() {
     const message = generateTable({ metric, commentContext });
 
     switch (commentMode) {
-      case 'insert':
+      case "insert":
         await insertComment({
           client,
           context,
@@ -68,7 +68,7 @@ async function run() {
         });
 
         break;
-      case 'update':
+      case "update":
         await upsertComment({
           client,
           context,
@@ -83,7 +83,7 @@ async function run() {
         });
 
         break;
-      case 'replace':
+      case "replace":
       default:
         await replaceComment({
           client,
