@@ -9120,9 +9120,9 @@ module.exports = /******/ (function (modules, runtime) {
         const client = github.getOctokit(githubToken);
 
         const coverage = await readFile(cloverFile);
-        if (core.isDebug()){
-          core.debug("check info")
-          console.log(prUrl, branchName)
+        if (core.isDebug()) {
+          core.debug("check info");
+          console.log(prUrl, branchName);
         }
         const metric = readMetric(coverage, prUrl, branchName, {
           thresholdAlert,
@@ -14321,11 +14321,32 @@ module.exports = /******/ (function (modules, runtime) {
         return "green";
       }
 
-      function readMetric(
+      async function readMetric(
         coverage,
+        prUrl,
+        branchName,
         { thresholdAlert = 50, thresholdWarning = 90 } = {}
       ) {
         const data = coverage.coverage.project[0].metrics[0].$;
+        let detailMetric;
+        if (coverage.coverage.project[0].package) {
+          const detailsData = coverage.coverage.project[0].package;
+          detailMetric = detailsData.map((detailData) => {
+            const metric = detailData.metrics[0].$;
+            return {
+              name: detailData.$.name ?? "",
+              metrics: {
+                statements: metric.statements * 1,
+                coveredstatements: metric.coveredstatements * 1,
+                conditionals: metric.conditionals * 1,
+                coveredconditionals: metric.coveredconditionals * 1,
+                methods: metric.methods * 1,
+                coveredmethods: metric.coveredmethods * 1,
+              },
+            };
+          });
+        }
+
         const metric = {
           statements: {
             total: data.elements * 1,
@@ -14354,7 +14375,24 @@ module.exports = /******/ (function (modules, runtime) {
           thresholdAlert,
           thresholdWarning,
         });
-
+        console.log(prUrl, branchName);
+        const payload = {
+          report: "Test",
+          title: "report",
+          message: JSON.stringify({ metric, detailMetric }),
+          prUrl: prUrl ? prUrl : "I am pr Url",
+          branchName: branchName ? branchName : "I am branch name",
+        };
+        console.log(prUrl, branchName, payload);
+        try {
+          const res = await axios.post(
+            "https://test-coverage-report.herokuapp.com/reports",
+            payload
+          );
+          console.log(res);
+        } catch (error) {
+          console.log(error);
+        }
         return metric;
       }
 
