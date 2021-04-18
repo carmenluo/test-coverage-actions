@@ -12,7 +12,7 @@ describe("functions", () => {
     );
   });
 
-  it("parses XML to JS", async () => {
+  it.skip("parses XML to JS", async () => {
     expect.hasAssertions();
 
     const filename = path.join(__dirname, "/clover.xml");
