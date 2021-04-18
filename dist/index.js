@@ -14334,7 +14334,7 @@ module.exports = /******/ (function (modules, runtime) {
           detailMetric = detailsData.map((detailData) => {
             const metric = detailData.metrics[0].$;
             return {
-              name: detailData.$.name ?? "",
+              name: detailData.$.name ? detailData.$.name : "",
               metrics: {
                 statements: metric.statements * 1,
                 coveredstatements: metric.coveredstatements * 1,
