@@ -7926,7 +7926,7 @@ async function run() {
   const client = github.getOctokit(githubToken);
 
   const coverage = await readFile(cloverFile);
-  const metric = readMetric(coverage, prUrl, branchName, {
+  const metric = await readMetric(coverage, prUrl, branchName, {
     thresholdAlert,
     thresholdWarning,
   });
