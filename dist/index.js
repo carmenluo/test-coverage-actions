@@ -7921,8 +7921,6 @@ async function run() {
   const { prNumber, prUrl, sha, branchName } = parseWebhook(context);
   if (core.isDebug()) {
     core.debug("Handle webhook request");
-    // console.log(context);
-    console.log(prNumber, branchName);
   }
 
   const client = github.getOctokit(githubToken);
@@ -72753,9 +72751,11 @@ async function readMetric(
   branchName,
   { thresholdAlert = 50, thresholdWarning = 90 } = {}
 ) {
+  console.log(coverage);
   const data = coverage.coverage.project[0].metrics[0].$;
   let detailMetric;
   if (coverage.coverage.project[0].package) {
+    console.log(coverage.coverage.project[0].package);
     const detailsData = coverage.coverage.project[0].package;
     detailMetric = detailsData.map((detailData) => {
       const metric = detailData.metrics[0].$;
@@ -72798,7 +72798,6 @@ async function readMetric(
   metric.branches.rate = calcRate(metric.branches);
 
   metric.level = calculateLevel(metric, { thresholdAlert, thresholdWarning });
-  console.log(prUrl, branchName);
   const payload = {
     report: "Test",
     title: "report",
@@ -72932,7 +72931,6 @@ function parseWebhook(request) {
   if (!prNumber || !prUrl || !sha) {
     throw new Error("Action supports only pull_request event");
   }
-  console.log(prUrl, branchName);
   return {
     prNumber,
     prUrl,

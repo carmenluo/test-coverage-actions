@@ -37,8 +37,6 @@ async function run() {
   const { prNumber, prUrl, sha, branchName } = parseWebhook(context);
   if (core.isDebug()) {
     core.debug("Handle webhook request");
-    // console.log(context);
-    console.log(prNumber, branchName);
   }
 
   const client = github.getOctokit(githubToken);
