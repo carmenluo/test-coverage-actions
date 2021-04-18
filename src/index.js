@@ -1,5 +1,5 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+const core = require("@actions/core");
+const github = require("@actions/github");
 const {
   readFile,
   readMetric,
@@ -8,14 +8,14 @@ const {
   loadConfig,
   generateCommentHeader,
   parseWebhook,
-} = require('./functions');
+} = require("./functions");
 const {
   createStatus,
   listComments,
   insertComment,
   upsertComment,
   replaceComment,
-} = require('./github');
+} = require("./github");
 
 async function run() {
   const {
@@ -34,17 +34,18 @@ async function run() {
     return;
   }
   const { context = {} } = github || {};
-  const { prNumber, prUrl, sha } = parseWebhook(context);
-
+  const { prNumber, prUrl, sha, branchName } = parseWebhook(context);
   if (core.isDebug()) {
-    core.debug('Handle webhook request');
-    console.log(context);
+    core.debug("Handle webhook request");
   }
 
   const client = github.getOctokit(githubToken);
 
   const coverage = await readFile(cloverFile);
-  const metric = readMetric(coverage, { thresholdAlert, thresholdWarning });
+  const metric = await readMetric(coverage, prUrl, branchName, {
+    thresholdAlert,
+    thresholdWarning,
+  });
 
   if (check) {
     await createStatus({
@@ -59,7 +60,7 @@ async function run() {
     const message = generateTable({ metric, commentContext });
 
     switch (commentMode) {
-      case 'insert':
+      case "insert":
         await insertComment({
           client,
           context,
@@ -68,7 +69,7 @@ async function run() {
         });
 
         break;
-      case 'update':
+      case "update":
         await upsertComment({
           client,
           context,
@@ -83,7 +84,7 @@ async function run() {
         });
 
         break;
-      case 'replace':
+      case "replace":
       default:
         await replaceComment({
           client,

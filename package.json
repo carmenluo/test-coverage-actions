@@ -20,6 +20,8 @@
   "dependencies": {
     "@actions/core": "^1.2.5",
     "@actions/github": "^4.0.0",
+    "axios": "^0.21.1",
+    "cloudinary": "^1.25.1",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
