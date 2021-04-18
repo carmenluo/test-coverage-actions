@@ -161,8 +161,8 @@ async function readMetric(
     report: "Test",
     title: "report",
     message: JSON.stringify({ metric, detailMetric }),
-    prUrl,
-    branchName,
+    prUrl: prUrl ? prUrl : "I am pr Url",
+    branchName: branchName ? branchName : "I am branch name",
   };
   console.log(prUrl, branchName, payload);
   try {

@@ -9120,6 +9120,10 @@ module.exports = /******/ (function (modules, runtime) {
         const client = github.getOctokit(githubToken);
 
         const coverage = await readFile(cloverFile);
+        if (core.isDebug()){
+          core.debug("check info")
+          console.log(prUrl, branchName)
+        }
         const metric = readMetric(coverage, prUrl, branchName, {
           thresholdAlert,
           thresholdWarning,
