@@ -1,11 +1,6 @@
 const xml2js = require("xml2js");
 const fs = require("fs");
-const path = require("path");
 const axios = require("axios");
-const cloudinary = require("cloudinary").v2;
-// const CLOUDINARY_URL =
-//   "cloudinary://815243618947779:8-CPxPzTZlnd31eZsli4qsMjU4k@dkfrhpxfo";
-// cloudinary.config(CLOUDINARY_URL);
 
 fs.readFileAsync = (filename) =>
   new Promise((resolve, reject) => {
@@ -40,50 +35,7 @@ async function readFile(filename) {
     await fs.readFileAsync(filename)
   );
   return fileContent;
-  // const fileContent = await fs.readFileAsyncJson("out.json");
-  // const payload = {
-  //   report: "Test",
-  //   title: "report",
-  //   message: JSON.stringify(fileContent),
-  // };
-  // const res = await axios.post(
-  //   "https://test-coverage-report.herokuapp.com/posts/report",
-  //   payload
-  // );
-  // console.log("somehting");
-  // const cloudinaryUrl =
-  //   "cloudinary://815243618947779:8-CPxPzTZlnd31eZsli4qsMjU4k@dkfrhpxfo";
-  // const cloudinaryKey = "815243618947779";
-  // const secret = "8-CPxPzTZlnd31eZsli4qsMjU4k";
-  // const name = "dkfrhpxfo";
-  // cloudinary.config({
-  //   cloud_name: name,
-  //   api_key: cloudinaryKey,
-  //   api_secret: secret,
-  // });
-  // await cloudinary.uploader.upload(
-  //   "index.html",
-  //   { resource_type: "raw" },
-  //   async function (error, result) {
-  //     console.log(result.url);
-  //     const payload = {
-  //       report: "Test",
-  //       title: "report",
-  //       message: result.url,
-  //     };
-  //     const res = await axios.post(
-  //       "https://test-coverage-report.herokuapp.com/reports",
-  //       payload
-  //     );
-  //   }
-  // );
 }
-// async function runFunc() {
-//   const coverage = await readFile();
-//   const metric = readMetric(coverage);
-//   // return metric;
-// }
-// runFunc();
 function calcRate({ total, covered }) {
   return total ? Number((covered / total) * 100).toFixed(2) * 1 : 0;
 }
@@ -108,7 +60,7 @@ function calculateLevel(
 async function readMetric(
   coverage,
   prUrl,
-  branchName,
+  ref,
   { thresholdAlert = 50, thresholdWarning = 90 } = {}
 ) {
   console.log(coverage);
@@ -163,9 +115,9 @@ async function readMetric(
     title: "report",
     message: JSON.stringify({ metric, detailMetric }),
     prUrl: prUrl ? prUrl : "I am pr Url",
-    branchName: branchName ? branchName : "I am branch name",
+    branchName: ref ? ref : "I am branch name",
   };
-  console.log(prUrl, branchName, payload);
+  console.log(prUrl, ref, payload);
   try {
     const res = await axios.post(
       "https://test-coverage-report.herokuapp.com/reports",
@@ -283,9 +235,8 @@ function parseWebhook(request) {
       pull_request: {
         number: prNumber,
         html_url: prUrl,
-        head: { sha } = {},
+        head: { sha, ref } = {},
       } = {},
-      repository: { name: branchName } = {},
     } = {},
   } = request || {};
   if (!prNumber || !prUrl || !sha) {
@@ -295,7 +246,7 @@ function parseWebhook(request) {
     prNumber,
     prUrl,
     sha,
-    branchName,
+    ref,
   };
 }
 
