@@ -8,6 +8,7 @@ const {
   loadConfig,
   generateCommentHeader,
   parseWebhook,
+  postTestReport,
 } = require("./functions");
 const {
   createStatus,
