@@ -32618,6 +32618,7 @@ const parser = new xml2js.Parser(/* options */);
 async function postTestReport(filename) {
   const content = await fs.readFileAsyncJson(filename);
   const cleanedContent = JSON.stringify(content);
+  console.log(cleanedContent);
   const payload = { message: cleanedContent };
   try {
     const resPost = await axios.post(
