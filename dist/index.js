@@ -32764,8 +32764,11 @@ async function readMetric(
 
     const baseCoverage = JSON.parse(resGet.data[resGet.data.length - 1].message)
       .detailMetric;
+    console.log(baseCoverage);
     const diff = _.differenceWith(detailMetric, baseCoverage, _.isEqual);
     let diffFileName = [];
+    console.log(diff);
+    console.log(diffFiles);
     const diffFiles = [...new Set(diffFileName)].filter(
       (name) => name !== "name" && name !== "metrics"
     );
@@ -32896,6 +32899,8 @@ function loadConfig({ getInput }) {
   const statusContext = getInput("status_context") || "Coverage Report";
   const commentContext = getInput("comment_context") || "Coverage Report";
   let commentMode = getInput("comment_mode");
+  const getTestReport = toBool(getInput("getTestReport"));
+  const testReportFile = getInput("testReportFile");
 
   if (!["replace", "update", "insert"].includes(commentMode)) {
     commentMode = "replace";
@@ -32911,6 +32916,8 @@ function loadConfig({ getInput }) {
     statusContext,
     commentContext,
     commentMode,
+    getTestReport,
+    testReportFile,
   };
 }
 
