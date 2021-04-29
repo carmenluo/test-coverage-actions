@@ -32933,7 +32933,7 @@ function parseWebhook(request) {
     } = {},
   } = request || {};
   if (!prNumber || !prUrl || !sha) {
-    throw new Error("Action supports only pull_request event");
+    console.log("Action supports only pull_request event");
   }
   return {
     prNumber,
