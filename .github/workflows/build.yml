@@ -26,3 +26,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           clover_file: "logs/clover.xml"
+      - name: identify flaky test
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          getTestReport: true
+          testReportFile: "report/report.json"

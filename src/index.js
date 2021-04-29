@@ -28,9 +28,16 @@ async function run() {
     statusContext,
     commentContext,
     commentMode,
+    getTestReport,
+    testReportFile,
   } = loadConfig(core);
 
   if (!check && !comment) {
+    return;
+  }
+  if (getTestReport) {
+    const result = await postTestReport(testReportFile);
+    console.log(result);
     return;
   }
   const { context = {} } = github || {};
