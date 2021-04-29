@@ -16,11 +16,10 @@ fs.readFileAsync = (filename) =>
 
 fs.readFileAsyncJson = (filename) =>
   new Promise((resolve, reject) => {
-    fs.readFile(filename, (err, data) => {
+    fs.readFile(filename, { encoding: "utf-8" }, (err, data) => {
       if (err) {
         reject(err);
       } else {
-        // const content = JSON.parse(data);
         resolve(data);
       }
     });
@@ -28,15 +27,15 @@ fs.readFileAsyncJson = (filename) =>
 
 const parser = new xml2js.Parser(/* options */);
 
-async function postTestReport(fileName) {
-  const content = await fs.readFileAsyncJson(fileName);
-  const payload = { message: content };
+async function postTestReport(filename) {
+  const content = await fs.readFileAsyncJson(filename);
+  const cleanedContent = JSON.stringify(content);
+  const payload = { message: cleanedContent };
   try {
     const resPost = await axios.post(
       "https://test-coverage-report.herokuapp.com/test-reports",
       payload
     );
-    console.log(resPost);
   } catch (error) {
     console.log(error);
   }
@@ -178,10 +177,10 @@ async function readMetric(
     const baseCoverage = JSON.parse(resGet.data[resGet.data.length - 1].message)
       .detailMetric;
     console.log(baseCoverage);
+    console.log(detailMetric);
     const diff = _.differenceWith(detailMetric, baseCoverage, _.isEqual);
     let diffFileName = [];
     console.log(diff);
-    console.log(diffFiles);
     const diffFiles = [...new Set(diffFileName)].filter(
       (name) => name !== "name" && name !== "metrics"
     );
