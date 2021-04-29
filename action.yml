@@ -8,7 +8,7 @@ inputs:
     required: true
   clover_file:
     description: "Path to Clover XML file."
-    required: true
+    required: false
   check:
     description: "Whether check the coverage thresholds."
     required: false

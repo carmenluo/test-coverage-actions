@@ -221,7 +221,7 @@ const generateDiffItems = (diff, baseCoverage, fileNames) => {
     }
   });
   getBaseCoverageForFile = getBaseCoverageForFile.filter(isDefined);
-  getNewCoverageForFile = getNewCovarageForFile.filter(isDefined);
+  getNewCoverageForFile = getNewCoverageForFile.filter(isDefined);
   // getNewCovarageForFile.map((newCoverageForFile) => {
   //   [Object.keys(newCoverageForFile)[0]];
   // });
