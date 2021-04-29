@@ -26,9 +26,15 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           clover_file: "src/clover-simplified.xml"
-      - name: identify flaky test
-        uses: ./
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          getTestReport: true
-          testReportFile: "report/report.json"
+      # - name: identify flaky test
+      #   uses: ./
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     getTestReport: true
+      #     testReportFile: "report/report.json"
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    if: success()
+    steps:
+      - run: echo "I can run"
