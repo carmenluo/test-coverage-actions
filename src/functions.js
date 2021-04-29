@@ -163,8 +163,8 @@ async function readMetric(
     report: "Test",
     title: "report",
     message: JSON.stringify({ metric, detailMetric }),
-    prUrl: prUrl ? prUrl : "I am pr Url",
-    branchName: ref ? ref : "I am branch name",
+    prUrl: prUrl ? prUrl : "develop",
+    branchName: ref ? ref : "develop",
   };
   try {
     const resGet = await axios.get(

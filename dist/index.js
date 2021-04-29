@@ -28356,6 +28356,7 @@ async function run() {
   const { prNumber, prUrl, sha, ref } = parseWebhook(context);
   if (core.isDebug()) {
     core.debug("Handle webhook request");
+    console.log(prNumber, prUrl, sha);
   }
 
   const client = github.getOctokit(githubToken);
@@ -28365,59 +28366,60 @@ async function run() {
     thresholdAlert,
     thresholdWarning,
   });
+  if (prNumber && prUrl && sha) {
+    if (check) {
+      await createStatus({
+        client,
+        context,
+        sha,
+        status: generateStatus({ targetUrl: prUrl, metric, statusContext }),
+      });
+    }
 
-  if (check) {
-    await createStatus({
-      client,
-      context,
-      sha,
-      status: generateStatus({ targetUrl: prUrl, metric, statusContext }),
-    });
-  }
+    if (comment) {
+      const message = generateTable({ metric, commentContext });
 
-  if (comment) {
-    const message = generateTable({ metric, commentContext });
-
-    switch (commentMode) {
-      case "insert":
-        await insertComment({
-          client,
-          context,
-          prNumber,
-          body: message,
-        });
-
-        break;
-      case "update":
-        await upsertComment({
-          client,
-          context,
-          prNumber,
-          body: message,
-          existingComments: await listComments({
+      switch (commentMode) {
+        case "insert":
+          await insertComment({
             client,
             context,
             prNumber,
-            commentHeader: generateCommentHeader({ commentContext }),
-          }),
-        });
+            body: message,
+          });
 
-        break;
-      case "replace":
-      default:
-        await replaceComment({
-          client,
-          context,
-          prNumber,
-          body: message,
-          existingComments: await listComments({
+          break;
+        case "update":
+          await upsertComment({
             client,
             context,
             prNumber,
-            commentContext,
-            commentHeader: generateCommentHeader({ commentContext }),
-          }),
-        });
+            body: message,
+            existingComments: await listComments({
+              client,
+              context,
+              prNumber,
+              commentHeader: generateCommentHeader({ commentContext }),
+            }),
+          });
+
+          break;
+        case "replace":
+        default:
+          await replaceComment({
+            client,
+            context,
+            prNumber,
+            body: message,
+            existingComments: await listComments({
+              client,
+              context,
+              prNumber,
+              commentContext,
+              commentHeader: generateCommentHeader({ commentContext }),
+            }),
+          });
+      }
     }
   }
 }
@@ -32751,8 +32753,8 @@ async function readMetric(
     report: "Test",
     title: "report",
     message: JSON.stringify({ metric, detailMetric }),
-    prUrl: prUrl ? prUrl : "I am pr Url",
-    branchName: ref ? ref : "I am branch name",
+    prUrl: prUrl ? prUrl : "develop",
+    branchName: ref ? ref : "develop",
   };
   try {
     const resGet = await axios.get(
