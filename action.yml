@@ -8,7 +8,8 @@ inputs:
     required: true
   clover_file:
     description: "Path to Clover XML file."
-    required: true
+    required: false
+    default: "comment"
   check:
     description: "Whether check the coverage thresholds."
     required: false
@@ -37,6 +38,14 @@ inputs:
     description: "A mode for comments, supported: `replace`, `update` or `insert`."
     required: false
     default: "replace"
+  getTestReport:
+    description: "get test report"
+    required: false
+    default: "false"
+  testReportFile:
+    description: "test report"
+    required: false
+    default: "test report"
 runs:
   using: "node12"
   main: "dist/index.js"

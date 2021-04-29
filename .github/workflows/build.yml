@@ -16,8 +16,8 @@ jobs:
       - name: Install
         run: npm install
 
-      - name: Test
-        run: npm test
+      # - name: Test
+      #   run: npm test
       # - name: Lint
       #   run: npm run lint
       - name: Monitor coverage
@@ -25,4 +25,10 @@ jobs:
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          clover_file: "logs/clover.xml"
+          clover_file: "src/clover-simplified.xml"
+      - name: identify flaky test
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          getTestReport: true
+          testReportFile: "report/report.json"

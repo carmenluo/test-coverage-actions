@@ -8,6 +8,7 @@ const {
   loadConfig,
   generateCommentHeader,
   parseWebhook,
+  postTestReport,
 } = require("./functions");
 const {
   createStatus,
@@ -28,13 +29,20 @@ async function run() {
     statusContext,
     commentContext,
     commentMode,
+    getTestReport,
+    testReportFile,
   } = loadConfig(core);
 
   if (!check && !comment) {
     return;
   }
+  if (getTestReport) {
+    const result = await postTestReport(testReportFile);
+    console.log(result);
+    return;
+  }
   const { context = {} } = github || {};
-  const { prNumber, prUrl, sha, branchName } = parseWebhook(context);
+  const { prNumber, prUrl, sha, ref } = parseWebhook(context);
   if (core.isDebug()) {
     core.debug("Handle webhook request");
   }
@@ -42,7 +50,7 @@ async function run() {
   const client = github.getOctokit(githubToken);
 
   const coverage = await readFile(cloverFile);
-  const metric = await readMetric(coverage, prUrl, branchName, {
+  const metric = await readMetric(coverage, prUrl, ref, {
     thresholdAlert,
     thresholdWarning,
   });

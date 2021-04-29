@@ -1,11 +1,7 @@
 const xml2js = require("xml2js");
 const fs = require("fs");
-const path = require("path");
 const axios = require("axios");
-const cloudinary = require("cloudinary").v2;
-// const CLOUDINARY_URL =
-//   "cloudinary://815243618947779:8-CPxPzTZlnd31eZsli4qsMjU4k@dkfrhpxfo";
-// cloudinary.config(CLOUDINARY_URL);
+const _ = require("lodash");
 
 fs.readFileAsync = (filename) =>
   new Promise((resolve, reject) => {
@@ -20,71 +16,42 @@ fs.readFileAsync = (filename) =>
 
 fs.readFileAsyncJson = (filename) =>
   new Promise((resolve, reject) => {
-    fs.readFile(filename, (err, data) => {
+    fs.readFile(filename, { encoding: "utf-8" }, (err, data) => {
       if (err) {
         reject(err);
       } else {
-        const content = JSON.parse(data);
-
-        resolve(content);
+        resolve(data);
       }
     });
   });
 
 const parser = new xml2js.Parser(/* options */);
 
+async function postTestReport(filename) {
+  const content = await fs.readFileAsyncJson(filename);
+  const cleanedContent = JSON.stringify(content);
+  console.log(cleanedContent);
+  const payload = { message: cleanedContent };
+  try {
+    const resPost = await axios.post(
+      "https://test-coverage-report.herokuapp.com/test-reports",
+      payload
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function readFile(filename) {
-  // async function readFile() {
-  // console.log(path.dirname);
   const fileContent = parser.parseStringPromise(
     await fs.readFileAsync(filename)
   );
   return fileContent;
-  // const fileContent = await fs.readFileAsyncJson("out.json");
-  // const payload = {
-  //   report: "Test",
-  //   title: "report",
-  //   message: JSON.stringify(fileContent),
-  // };
-  // const res = await axios.post(
-  //   "https://test-coverage-report.herokuapp.com/posts/report",
-  //   payload
-  // );
-  // console.log("somehting");
-  // const cloudinaryUrl =
-  //   "cloudinary://815243618947779:8-CPxPzTZlnd31eZsli4qsMjU4k@dkfrhpxfo";
-  // const cloudinaryKey = "815243618947779";
-  // const secret = "8-CPxPzTZlnd31eZsli4qsMjU4k";
-  // const name = "dkfrhpxfo";
-  // cloudinary.config({
-  //   cloud_name: name,
-  //   api_key: cloudinaryKey,
-  //   api_secret: secret,
-  // });
-  // await cloudinary.uploader.upload(
-  //   "index.html",
-  //   { resource_type: "raw" },
-  //   async function (error, result) {
-  //     console.log(result.url);
-  //     const payload = {
-  //       report: "Test",
-  //       title: "report",
-  //       message: result.url,
-  //     };
-  //     const res = await axios.post(
-  //       "https://test-coverage-report.herokuapp.com/reports",
-  //       payload
-  //     );
-  //   }
-  // );
 }
-// async function runFunc() {
-//   const coverage = await readFile();
-//   const metric = readMetric(coverage);
-//   // return metric;
-// }
-// runFunc();
 function calcRate({ total, covered }) {
+  return total ? Number((covered / total) * 100).toFixed(2) * 1 : 0;
+}
+function calcRateNumber(covered, total) {
   return total ? Number((covered / total) * 100).toFixed(2) * 1 : 0;
 }
 
@@ -104,20 +71,53 @@ function calculateLevel(
 
   return "green";
 }
-
+async function compareCoverage() {}
+const convertArrayToObject = (array, key) => {
+  const initialValue = {};
+  return array.reduce((obj, item) => {
+    return {
+      ...obj,
+      [item[key]]: item,
+    };
+  }, initialValue);
+};
 async function readMetric(
   coverage,
   prUrl,
-  branchName,
+  ref,
   { thresholdAlert = 50, thresholdWarning = 90 } = {}
 ) {
-  console.log(coverage);
   const data = coverage.coverage.project[0].metrics[0].$;
   let detailMetric;
+  let diffResult;
+
   if (coverage.coverage.project[0].package) {
-    console.log(coverage.coverage.project[0].package);
     const detailsData = coverage.coverage.project[0].package;
     detailMetric = detailsData.map((detailData) => {
+      let file;
+      if (detailData.file) {
+        file = detailData.file.map((fileItem) => {
+          const fileName = fileItem.$.name;
+          const metric = fileItem.metrics[0].$;
+          return {
+            name: fileName,
+            metrics: {
+              statementsRate: calcRateNumber(
+                metric.coveredstatements * 1,
+                metric.statements * 1
+              ),
+              conditionalsRate: calcRateNumber(
+                metric.coveredconditionals * 1,
+                metric.conditionals * 1
+              ),
+              methodsRate: calcRateNumber(
+                metric.coveredmethods * 1,
+                metric.methods * 1
+              ),
+            },
+          };
+        });
+      }
       const metric = detailData.metrics[0].$;
       return {
         name: detailData.$.name ? detailData.$.name : "",
@@ -129,6 +129,7 @@ async function readMetric(
           methods: metric.methods * 1,
           coveredmethods: metric.coveredmethods * 1,
         },
+        ...convertArrayToObject(file, "name"),
       };
     });
   }
@@ -163,20 +164,72 @@ async function readMetric(
     title: "report",
     message: JSON.stringify({ metric, detailMetric }),
     prUrl: prUrl ? prUrl : "I am pr Url",
-    branchName: branchName ? branchName : "I am branch name",
+    branchName: ref ? ref : "I am branch name",
   };
-  console.log(prUrl, branchName, payload);
   try {
-    const res = await axios.post(
+    const resGet = await axios.get(
+      "https://test-coverage-report.herokuapp.com/reports"
+    );
+    const resPost = await axios.post(
       "https://test-coverage-report.herokuapp.com/reports",
       payload
     );
-    console.log(res);
+
+    const baseCoverage = JSON.parse(resGet.data[resGet.data.length - 1].message)
+      .detailMetric;
+    console.log(baseCoverage);
+    console.log(detailMetric);
+    const diff = _.differenceWith(detailMetric, baseCoverage, _.isEqual);
+    let diffFileName = [];
+    console.log(diff);
+    const diffFiles = [...new Set(diffFileName)].filter(
+      (name) => name !== "name" && name !== "metrics"
+    );
+    generateDiffItems(diff, baseCoverage, diffFiles);
   } catch (error) {
     console.log(error);
   }
   return metric;
 }
+
+function isDefined(maybe) {
+  return maybe !== undefined;
+}
+
+const generateDiffItems = (diff, baseCoverage, fileNames) => {
+  let getBaseCoverageForFile = [];
+  let getNewCoverageForFile = [];
+  baseCoverage.forEach((baseCoverageItem) => {
+    for (let i = 0; i < fileNames.length; i++) {
+      if (
+        baseCoverageItem[fileNames[i]] &&
+        baseCoverageItem[fileNames[i]].metrics
+      ) {
+        getBaseCoverageForFile.push({
+          [fileNames[i]]: baseCoverageItem[fileNames[i]].metrics,
+        });
+      }
+    }
+  });
+  diff.forEach((diffCoverageItem) => {
+    for (let i = 0; i < fileNames.length; i++) {
+      if (
+        diffCoverageItem[fileNames[i]] &&
+        diffCoverageItem[fileNames[i]].metrics
+      ) {
+        getNewCoverageForFile.push({
+          [fileNames[i]]: diffCoverageItem[fileNames[i]].metrics,
+        });
+      }
+    }
+  });
+  getBaseCoverageForFile = getBaseCoverageForFile.filter(isDefined);
+  getNewCoverageForFile = getNewCoverageForFile.filter(isDefined);
+  // getNewCovarageForFile.map((newCoverageForFile) => {
+  //   [Object.keys(newCoverageForFile)[0]];
+  // });
+  console.log(getBaseCoverageForFile, getNewCoverageForFile);
+};
 
 function generateBadgeUrl(metric) {
   return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(
@@ -259,6 +312,8 @@ function loadConfig({ getInput }) {
   const statusContext = getInput("status_context") || "Coverage Report";
   const commentContext = getInput("comment_context") || "Coverage Report";
   let commentMode = getInput("comment_mode");
+  const getTestReport = toBool(getInput("getTestReport"));
+  const testReportFile = getInput("testReportFile");
 
   if (!["replace", "update", "insert"].includes(commentMode)) {
     commentMode = "replace";
@@ -274,6 +329,8 @@ function loadConfig({ getInput }) {
     statusContext,
     commentContext,
     commentMode,
+    getTestReport,
+    testReportFile,
   };
 }
 
@@ -283,9 +340,8 @@ function parseWebhook(request) {
       pull_request: {
         number: prNumber,
         html_url: prUrl,
-        head: { sha } = {},
+        head: { sha, ref } = {},
       } = {},
-      repository: { name: branchName } = {},
     } = {},
   } = request || {};
   if (!prNumber || !prUrl || !sha) {
@@ -295,7 +351,7 @@ function parseWebhook(request) {
     prNumber,
     prUrl,
     sha,
-    branchName,
+    ref,
   };
 }
 
@@ -310,4 +366,5 @@ module.exports = {
   loadConfig,
   generateCommentHeader,
   parseWebhook,
+  postTestReport,
 };
