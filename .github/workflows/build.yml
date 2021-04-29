@@ -25,7 +25,7 @@ jobs:
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          clover_file: "logs/clover.xml"
+          clover_file: "src/clover-1.xml"
       - name: identify flaky test
         uses: ./
         with:
